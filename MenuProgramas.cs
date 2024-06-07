@@ -23,6 +23,10 @@ public class MenuProgramas
             opcao = Console.ReadKey(true).KeyChar.ToString().ToLower();
             switch (opcao)
             {
+                case "4":
+                    MenuJogos.MostraMenu();
+                    break;
+
                 case "6" :
                     MenuSistemas.MostraMenu();
                     break;
