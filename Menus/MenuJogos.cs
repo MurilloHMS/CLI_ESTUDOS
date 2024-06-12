@@ -18,6 +18,9 @@ public class MenuJogos
                 case "1":
                     new JogoDaVelha().Iniciar();
                     break;
+                case "2": 
+                    new JogoDaCobrinha().IniciarJogo();
+                    break;
             }
         }while(opcao != "s");
     }

@@ -12,6 +12,7 @@
         {
             fimDeJogo = false;
             quantidadePreenchida = 0;
+            vez = 'X';
             posicoes = new []{'1','2','3','4','5','6','7','8','9'};
         }
 
@@ -79,6 +80,7 @@
             {
                 fimDeJogo = true;
                 Console.WriteLine($"Fim de jogo!!! vitoria de {vez}");
+                Console.ReadKey();
                 return;
             }
 
@@ -86,7 +88,9 @@
             {
                 fimDeJogo = true;
                 Console.WriteLine("Fim de jogo!!! EMPATE");
+                Console.ReadKey();
             }
+            
         }
 
         private bool ExisteVitoriaHorizontal()
