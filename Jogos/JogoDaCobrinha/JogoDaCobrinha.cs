@@ -205,5 +205,6 @@ public class JogoDaCobrinha
      {
          Console.Clear();
          Console.WriteLine("Fim de jogo, Pontuacao: " + placar);
+         Console.ReadKey();
      }
 }
