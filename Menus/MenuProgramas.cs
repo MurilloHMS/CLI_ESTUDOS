@@ -25,6 +25,9 @@ public class MenuProgramas
                 case "1":
                     MenuCalculadoras.MostraMenu();
                     break;
+                case "2":
+                    MenuConversores.MostraMenu();    
+                    break;
                 case "4":
                     MenuJogos.MostraMenu();
                     break;
