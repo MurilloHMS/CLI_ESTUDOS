@@ -136,7 +136,8 @@ namespace CLI_Estudos
         {
             string[] placas = { "BWV-0I24", "ETB-5D61", "GUG-7H68","FHH-7I86","ECU-3A67","GAK-1567", "DMK-3C99", "FPK-7A88", "GJY-9755", "RNK-7B98",
                                     "SIZ-2J86", "GIL-0962", "SIG-9C92", "CUG-7H68", "SST-6A48", "SHS-3G04", "FFQ-9J27","FZH-2C11", "SIG-9C93", "MTZ-3D69",
-                                    "DZV-4286", "KWW-8892", "SHU-1C35", "RUN-8C05", "SUC-1D60", "SIS-0E68", "GHK-9J60", "SJG-1C06"};
+                                    "DZV-4286", "KWW-8892", "SHU-1C35", "RUN-8C05", "SUC-1D60", "SIS-0E68", "GHK-9J60", "SJG-1C06", "ENN-0170", " CUG-7G68",
+                                    "CUR-0E00", "DDF-2H83", "ETB-5661"};
             var placasEncontradas = placas.Where(placa => texto.Contains(placa)).ToList();
 
             if (placasEncontradas.Any())
