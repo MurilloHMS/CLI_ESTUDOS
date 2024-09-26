@@ -35,6 +35,10 @@ public class MenuProgramas
                 case "6" :
                     MenuSistemas.MostraMenu();
                     break;
+
+                case "8":
+                    MenuVerificadores.MostraMenu();
+                    break;
             }
         } while (opcao != "s");
     }
