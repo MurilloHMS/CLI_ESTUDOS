@@ -10,6 +10,7 @@ namespace CLI_Estudos
                 Console.Clear();
                 Console.WriteLine("Selecione uma das opcoes abaixo");
                 Console.WriteLine("1. Verificar XML Veiculos");
+                Console.WriteLine("2. Alterar Nomes De notas");
 
                 Console.WriteLine("Digite S para sair");
 
@@ -19,6 +20,9 @@ namespace CLI_Estudos
                 {
                     case "1":
                         VerificarNotasVeiculos.Run();
+                        break;
+                    case "2":
+                        AlterarNomeDeArquivos.Run();
                         break;
                 }
             } while (opcoes != "s");

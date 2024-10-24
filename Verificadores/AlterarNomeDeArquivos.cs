@@ -1,14 +1,17 @@
-using System.Xml.Linq;
+﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Drawing.Charts;
+using Newtonsoft.Json;
+using System.Net.NetworkInformation;
 
 namespace CLI_Estudos
 {
-    public class VerificarNotasVeiculos
+    public class AlterarNomeDeArquivos
     {
         public static void Run()
         {
             string currentDirectory = Directory.GetCurrentDirectory();
 
-            while(true)
+            while (true)
             {
                 Console.Clear();
                 Console.WriteLine("Navegador de Diretórios");
@@ -24,7 +27,7 @@ namespace CLI_Estudos
                 string[] files = Directory.GetFiles(currentDirectory);
 
                 Console.WriteLine("Diretórios");
-                for(int i = 0; i < directories.Length; i++)
+                for (int i = 0; i < directories.Length; i++)
                 {
                     Console.WriteLine($"{i + 4} : {Path.GetFileName(directories[i])}");
                 }
@@ -38,10 +41,10 @@ namespace CLI_Estudos
                 Console.Write("\nEscolha uma opção: ");
                 string input = Console.ReadLine();
 
-                if(input == "0")
+                if (input == "0")
                 {
                     Console.WriteLine($"Você selecionou o diretório: {currentDirectory}");
-                    IdentificarNotasVeiculos(currentDirectory);
+                    IdentificarNotas(currentDirectory);
                     Console.ReadKey();
                     break;
                 }
@@ -72,7 +75,7 @@ namespace CLI_Estudos
                 else
                 {
                     int index;
-                    if(int.TryParse(input, out index) && index >= 4 && index < directories.Length + 4)
+                    if (int.TryParse(input, out index) && index >= 4 && index < directories.Length + 4)
                     {
                         currentDirectory = directories[index - 4];
                     }
@@ -85,63 +88,73 @@ namespace CLI_Estudos
             }
         }
 
-        private static void IdentificarNotasVeiculos(string currentDirectory)
+        private static async void IdentificarNotas(string currentDirectory)
         {
-            string[] folderFiles = Directory.GetFiles(currentDirectory).Where(file => file.EndsWith(".xml")).ToArray();
-            foreach(string file in folderFiles)
+            string[] folderFiles = Directory.GetFiles(currentDirectory).Where(file => file.EndsWith(".pdf")).ToArray();
+            var indices = await ObterIndices();
+            foreach (string file in folderFiles)
             {
-                ProcessarXML(file);
+                AlterarNomesNotas(file, indices);
             }
             Console.WriteLine("Notas identificadas com sucesso");
         }
 
-        private static void ProcessarXML(string filepath)
-        {
-            try
+        private static void AlterarNomesNotas(string filePath, IEnumerable<DadosNota> indices)
+        {            
+            foreach (var nota in indices) 
             {
-                XDocument xmldoc = XDocument.Load(filepath);
-                XNamespace ns = "http://www.portalfiscal.inf.br/nfe";
-
-                var infAdic = xmldoc.Descendants(ns + "infAdic").FirstOrDefault();
-
-                if(infAdic != null)
+                var nomeDaNota = Path.GetFileNameWithoutExtension(filePath);
+                if (nomeDaNota.Equals(nota.Identificador))
                 {
-                    string? infCpl = infAdic.Element(ns + "infCpl")?.Value;
-                    var nomeArquivo = VerificarPlacas(infCpl);
-                    if(nomeArquivo != null)
+                    if (!Directory.Exists(@"D:\dados\notas"))
                     {
-                        if(!Directory.Exists(Path.Combine(Path.GetDirectoryName(filepath), "Veiculos")))
-                        {
-                            Directory.CreateDirectory(Path.Combine(Path.GetDirectoryName(filepath), "Veiculos"));
-                        }
-
-                        File.Move(filepath ,Path.GetDirectoryName(filepath) + @$"\Veiculos\"  + nomeArquivo + " - " +  Path.GetFileName(filepath));                        
+                        Directory.CreateDirectory(@"D:\dados\notas");
                     }
-                    
-                }
 
-            }catch (Exception)
-            {
-                throw;
+                    File.Copy(filePath, @"D:\dados\notas\" + "NFe_"+ nota.NumeroNFe + ".pdf");
+                }
             }
+            
         }
 
-        private static string VerificarPlacas(string texto)
+        private static async Task<IEnumerable<DadosNota>> ObterIndices()
         {
-            string[] placas = { "BWV-0I24", "ETB-5D61", "GUG-7H68","FHH-7I86","ECU-3A67","GAK-1567", "DMK-3C99", "FPK-7A88", "GJY-9755", "RNK-7B98",
-                                    "SIZ-2J86", "GIL-0962", "SIG-9C92", "CUG-7H68", "SST-6A48", "SHS-3G04", "FFQ-9J27","FZH-2C11", "SIG-9C93", "MTZ-3D69",
-                                    "DZV-4286", "KWW-8892", "SHU-1C35", "RUN-8C05", "SUC-1D60", "SIS-0E68", "GHK-9J60", "SJG-1C06", "ENN-0170", " CUG-7G68",
-                                    "CUR-0E00", "DDF-2H83", "ETB-5661"};
-            var placasEncontradas = placas.Where(placa => texto.Contains(placa)).ToList();
+            var dados = new List<DadosNota>(); 
+            Console.Write("Digite o path do arquivo excel para ler: ");
+            string path = Console.ReadLine();
 
-            if (placasEncontradas.Any())
+            if(!File.Exists(path))
             {
-                return string.Join(", ", placasEncontradas);
+                Console.WriteLine("arquivo inesistente");
+                return new List<DadosNota>();
             }
-            else
+            Console.WriteLine("obtendo dados do arquivo");
+            using(XLWorkbook wb = new XLWorkbook(path))
             {
-                return null;
+                var planilha = wb.Worksheet(1);
+                var fileData = planilha.RowsUsed()
+                    .Skip(1)
+                    .Select(row => new DadosNota
+                    {
+                        Identificador = row.Cell(1).TryGetValue<string>(out var identificador) ? identificador : null,
+                        NumeroNFe = row.Cell(2).TryGetValue<string>(out var numeroNFe) ? numeroNFe : null
+                    }).ToList();
+
+                lock (dados)
+                {
+                    dados.AddRange(fileData);
+                }
+                         
             }
+            return dados;
         }
     }
+
+    public class DadosNota
+    {
+        public string Identificador {  get; set; }
+        public string NumeroNFe { get; set; }
+    }
+
 }
+
