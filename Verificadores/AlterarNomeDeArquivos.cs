@@ -139,12 +139,10 @@ namespace CLI_Estudos
                         Identificador = row.Cell(1).TryGetValue<string>(out var identificador) ? identificador : null,
                         NumeroNFe = row.Cell(2).TryGetValue<string>(out var numeroNFe) ? numeroNFe : null
                     }).ToList();
-
                 lock (dados)
                 {
                     dados.AddRange(fileData);
-                }
-                         
+                } 
             }
             return dados;
         }
